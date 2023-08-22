@@ -199,6 +199,7 @@ class ImageService
             'height' => $height,
             'is_unhealthy' => false,
             'uploaded_ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
 
         $filesystem = new Filesystem($this->getAdapter($strategy));

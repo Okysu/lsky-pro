@@ -70,6 +70,7 @@ class Image extends Model
         'permission',
         'is_unhealthy',
         'uploaded_ip',
+        'user_agent'
     ];
 
     protected $hidden = [
@@ -108,8 +109,7 @@ class Image extends Model
                 ->where('id', '<>', $image->id)
                 ->where('md5', $image->md5)
                 ->where('sha1', $image->sha1)
-                ->exists()
-            ) {
+                ->exists()) {
                 // 删除本地缓存文件
                 try {
                     // 删除物理文件
@@ -160,13 +160,13 @@ class Image extends Model
 
     public function filename(): Attribute
     {
-        return new Attribute(fn() => $this->alias_name ?: $this->origin_name);
+        return new Attribute(fn () => $this->alias_name ?: $this->origin_name);
     }
 
     public function pathname(): Attribute
     {
         $path = $this->path ? "{$this->path}/" : '';
-        return new Attribute(fn() => "{$path}{$this->name}");
+        return new Attribute(fn () => "{$path}{$this->name}");
     }
 
     public function url(): Attribute
@@ -176,11 +176,11 @@ class Image extends Model
             if ($this->group?->configs->get(GroupConfigKey::IsEnableOriginalProtection)) {
                 $url = asset("{$this->key}.{$this->extension}");
             } else {
-                $url = rtrim($this->strategy?->configs->get('url'), '/').'/'.ltrim($this->pathname, '/');
+                $url = rtrim($this->strategy?->configs->get('url'), '/') . '/' . ltrim($this->pathname, '/');
             }
 
             // 拼接图片 url
-            return $url.($this->strategy?->configs->get('queries') ?: '');
+            return $url . ($this->strategy?->configs->get('queries') ?: '');
         });
     }
 
@@ -190,7 +190,7 @@ class Image extends Model
             $pathname = $this->getThumbnailPathname();
 
             // 没有缩略图则返回原图
-            if (! file_exists(public_path($pathname))) {
+            if (!file_exists(public_path($pathname))) {
                 return $this->url;
             }
 
@@ -200,7 +200,7 @@ class Image extends Model
 
     public function links(): Attribute
     {
-        return new Attribute(fn() => collect([
+        return new Attribute(fn () => collect([
             'url' => $this->url,
             'html' => "&lt;img src=\"{$this->url}\" alt=\"{$this->origin_name}\" title=\"{$this->origin_name}\" /&gt;",
             'bbcode' => "[img]{$this->url}[/img]",
@@ -240,7 +240,7 @@ class Image extends Model
 
     public function getThumbnailPathname(): string
     {
-        return trim(config('app.thumbnail_path'), '/')."/{$this->md5}.png";
+        return trim(config('app.thumbnail_path'), '/') . "/{$this->md5}.png";
     }
 
     private function generateKey($length = 6): string
